@@ -1,14 +1,14 @@
 # app_sam_interactive.py
-# pip install streamlit pillow numpy opencv-python torch git+https://github.com/facebookresearch/segment-anything.git gdown
+# pip install streamlit pillow numpy opencv-python torch git+https://github.com/facebookresearch/segment-anything.git
 
 import streamlit as st
 import numpy as np
 import cv2
 import os
+import time
 import tempfile
 from PIL import Image
 from segment_anything import sam_model_registry, SamPredictor
-import gdown
 
 # ----------------------------------
 # Helper functions
@@ -20,28 +20,16 @@ def overlay_mask(image, mask, alpha=0.5):
     overlay = cv2.addWeighted(image, 1 - alpha, color_mask, alpha, 0)
     return Image.fromarray(overlay)
 
-def download_checkpoint(url, path):
-    if not os.path.exists(path):
-        st.info(f"Downloading SAM checkpoint (~358MB) to {path} ...")
-        gdown.download(url, path, quiet=False)
-        st.success("✅ Download complete!")
-
 # ----------------------------------
 # Streamlit UI
 # ----------------------------------
 st.set_page_config(page_title="Segment Anything Interactive", layout="wide")
 st.title("🎨 Segment Anything — Interactive Embedding Mode")
 
-# Checkpoint URL (set your hosted URL here, e.g., Google Drive or Hugging Face)
-checkpoint_url = "https://huggingface.co/facebook/sam-vit-b/resolve/main/sam_vit_b_01ec64.pth"
-checkpoint_path = "sam_vit_b_01ec64.pth"
-
-# Download checkpoint if missing
-download_checkpoint(checkpoint_url, checkpoint_path)
-
+checkpoint_path = st.text_input("SAM checkpoint path", value="sam_vit_b_01ec64.pth")
 opacity = st.slider("Mask Opacity", 0.0, 1.0, 0.5)
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-st.write("After upload, go down to compute embeddings.")
+st.write("after upload done go down")
 
 if "predictor" not in st.session_state:
     st.session_state.predictor = None
@@ -69,10 +57,10 @@ if uploaded_file is not None:
 # ----------------------------------
 # Click-based mask prediction
 # ----------------------------------
-st.write("Try coordinates within the image dimensions to segment a region.")
+st.write("try big co ordinate according to image in range of 900 to 1000 so you get the result")
 if st.session_state.predictor is not None:
     st.write("Now click anywhere on the image to segment that region.")
-
+ 
     click_x = st.number_input("Click X coordinate (pixel)", min_value=0)
     click_y = st.number_input("Click Y coordinate (pixel)", min_value=0)
 
@@ -95,3 +83,4 @@ if st.session_state.predictor is not None:
             overlay.save(tmp.name)
             with open(tmp.name, "rb") as f:
                 st.download_button("📥 Download Mask", data=f, file_name="mask_overlay.png")
+
