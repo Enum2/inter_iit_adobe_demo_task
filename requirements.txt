@@ -1,0 +1,7 @@
+streamlit
+pillow
+numpy
+opencv-python
+torch
+git+https://github.com/facebookresearch/segment-anything.git
+gdown
